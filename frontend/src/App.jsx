@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from "react";
 import { ethers } from "ethers";
-import Navbar        from "./components/Navbar.jsx";
-import Sidebar       from "./components/Sidebar.jsx";
-import StatsBar      from "./components/StatsBar.jsx";
+import Navbar from "./components/Navbar.jsx";
+import Sidebar from "./components/Sidebar.jsx";
+import StatsBar from "./components/StatsBar.jsx";
 import CandidateCard from "./components/CandidateCard.jsx";
-import Toast         from "./components/Toast.jsx";
+import Toast from "./components/Toast.jsx";
 import { VOTING_CONTRACT_ADDRESS, VOTING_CONTRACT_ABI } from "./contracts/VotingData.js";
 
 function sortedByVotes(candidates) {
@@ -17,21 +17,21 @@ function generateVoterHash(address) {
   let hash = 0;
   for (let i = 0; i < address.length; i++) {
     hash = (hash << 5) - hash + address.charCodeAt(i);
-    hash |= 0; 
+    hash |= 0;
   }
   return "VID-" + Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
 }
 
 export default function App() {
-  const [account,      setAccount]      = useState(null);
+  const [account, setAccount] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [candidates,   setCandidates]   = useState([]);
-  const [hasVoted,     setHasVoted]     = useState(false);
-  const [votedFor,     setVotedFor]     = useState(null); // Not stored on chain natively per-user in this simple contract, but kept for UI
-  const [isTxPending,  setIsTxPending]  = useState(false);
+  const [candidates, setCandidates] = useState([]);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [votedFor, setVotedFor] = useState(null); // Not stored on chain natively per-user in this simple contract, but kept for UI
+  const [isTxPending, setIsTxPending] = useState(false);
   const [toast, setToast] = useState(null);
   const [activeView, setActiveView] = useState('home');
-  
+
   // Ethers state
   const [contract, setContract] = useState(null);
 
@@ -47,14 +47,14 @@ export default function App() {
   const fetchCandidates = useCallback(async (votingContract) => {
     try {
       const data = await votingContract.getAllCandidates();
-      
+
       // Map Solidity struct to JS object, converting BigInts
       const formattedCandidates = data.map((candidate) => ({
         id: Number(candidate.id),
         name: candidate.name,
         voteCount: Number(candidate.voteCount),
       }));
-      
+
       setCandidates(formattedCandidates);
     } catch (err) {
       console.error("Error fetching candidates:", err);
@@ -118,10 +118,10 @@ export default function App() {
       showToast("MetaMask not detected. Please install it first.", "error");
       return;
     }
-    
+
     try {
       setIsConnecting(true);
-      
+
       const isCorrectNetwork = await ensureCorrectNetwork();
       if (!isCorrectNetwork) {
         showToast("Please switch to the Localhost network.", "error");
@@ -133,20 +133,20 @@ export default function App() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
-      
+
       setAccount(address);
-      
+
       // Initialize contract with signer for write operations
       const votingContract = new ethers.Contract(VOTING_CONTRACT_ADDRESS, VOTING_CONTRACT_ABI, signer);
       setContract(votingContract);
-      
+
       // Check if user has already voted
       const userHasVoted = await votingContract.hasVoted(address);
       setHasVoted(userHasVoted);
-      
+
       // Refresh candidates list just in case
       await fetchCandidates(votingContract);
-      
+
       showToast("Wallet connected successfully!", "success");
     } catch (err) {
       console.error("Connect error:", err);
@@ -179,25 +179,25 @@ export default function App() {
       }
 
       setIsTxPending(true);
-      
+
       // Call smart contract vote function
       const tx = await contract.vote(candidateId);
-      
+
       showToast("Transaction submitted. Waiting for confirmation...", "info");
-      
+
       // Wait for transaction to be mined
       await tx.wait();
-      
+
       // Update local state
       setHasVoted(true);
       setVotedFor(candidateId);
-      
+
       // Re-fetch live data to update progress bars
       await fetchCandidates(contract);
-      
+
       const winner = candidates.find((c) => c.id === candidateId);
       showToast(`✅ Vote confirmed for ${winner?.name}!`, "success");
-      
+
     } catch (err) {
       console.error("Vote error:", err);
       if (err.code === "ACTION_REJECTED" || err.info?.error?.code === 4001) {
@@ -228,7 +228,7 @@ export default function App() {
           setVotedFor(null);
         }
       };
-      
+
       window.ethereum.on('accountsChanged', handleAccountsChanged);
       return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
     }
@@ -240,37 +240,37 @@ export default function App() {
     <>
       {/* ── Hero Banner ───────────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-6 relative">
-         <div className="p-8 pb-10 sm:w-2/3">
-            <p className="font-semibold text-slate-800 text-lg mb-1">Welcome to the</p>
-            <h2 className="font-bold text-4xl sm:text-5xl text-slate-800 leading-tight mb-2">
-              Voter <span className="text-brand-500">Portal</span>
-            </h2>
-            <div className="flex gap-3 text-brand-600 font-semibold mb-6">
-               <span>Register</span>
-               <span>•</span>
-               <span>Verify</span>
-               <span>•</span>
-               <span>Participate</span>
-            </div>
-            <p className="text-slate-500 font-medium">A step towards a stronger democracy</p>
-         </div>
-         
-         <div className="absolute right-8 top-12 text-right hidden sm:block z-10">
-            <p className="italic font-bold text-slate-800 text-2xl font-serif">“Every vote counts”</p>
-            <div className="flex justify-end mt-2 gap-1">
-               <div className="w-4 h-1.5 bg-orange-500 rounded-sm"></div>
-               <div className="w-4 h-1.5 bg-yellow-400 rounded-sm"></div>
-               <div className="w-4 h-1.5 bg-green-500 rounded-sm"></div>
-            </div>
-         </div>
-         
-         <div className="absolute right-0 bottom-0 h-full w-2/3 opacity-30 pointer-events-none" 
-              style={{ background: 'radial-gradient(circle at 70% 50%, rgba(93, 95, 239, 0.15) 0%, transparent 60%)' }}>
-            <svg className="absolute right-[20%] bottom-0 h-[120%] text-slate-300" viewBox="0 0 100 100" fill="currentColor">
-               <path d="M50 80 Q50 60 45 40 Q40 20 45 10 Q50 0 55 10 Q60 20 55 40 Q50 60 50 80 Z" opacity="0.5"/>
-               <circle cx="50" cy="20" r="2" fill="#2d2ea3" opacity="0.8"/>
-            </svg>
-         </div>
+        <div className="p-8 pb-10 sm:w-2/3">
+          <p className="font-semibold text-slate-800 text-lg mb-1">Welcome to the</p>
+          <h2 className="font-bold text-4xl sm:text-5xl text-slate-800 leading-tight mb-2">
+            Voter <span className="text-brand-500">Portal</span>
+          </h2>
+          <div className="flex gap-3 text-brand-600 font-semibold mb-6">
+            <span>Register</span>
+            <span>•</span>
+            <span>Verify</span>
+            <span>•</span>
+            <span>Participate</span>
+          </div>
+          <p className="text-slate-500 font-medium">A step towards a stronger democracy</p>
+        </div>
+
+        <div className="absolute right-8 top-12 text-right hidden sm:block z-10">
+          <p className="italic font-bold text-slate-800 text-2xl font-serif">“Every vote counts”</p>
+          <div className="flex justify-end mt-2 gap-1">
+            <div className="w-4 h-1.5 bg-orange-500 rounded-sm"></div>
+            <div className="w-4 h-1.5 bg-yellow-400 rounded-sm"></div>
+            <div className="w-4 h-1.5 bg-green-500 rounded-sm"></div>
+          </div>
+        </div>
+
+        <div className="absolute right-0 bottom-0 h-full w-2/3 opacity-30 pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 70% 50%, rgba(93, 95, 239, 0.15) 0%, transparent 60%)' }}>
+          <svg className="absolute right-[20%] bottom-0 h-[120%] text-slate-300" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M50 80 Q50 60 45 40 Q40 20 45 10 Q50 0 55 10 Q60 20 55 40 Q50 60 50 80 Z" opacity="0.5" />
+            <circle cx="50" cy="20" r="2" fill="#2d2ea3" opacity="0.8" />
+          </svg>
+        </div>
       </div>
 
       {/* ── Stats bar ─────────────────────────────────────────────────────── */}
@@ -288,9 +288,9 @@ export default function App() {
         <div className="light-card p-6 mb-8 flex flex-col sm:flex-row items-center gap-5 justify-between bg-white border-orange-200">
           <div className="flex items-center gap-5">
             <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500 flex-shrink-0 shadow-sm">
-               <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-               </svg>
+              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
             </div>
             <div>
               <h3 className="font-bold text-slate-800 text-lg">Connect your wallet to vote</h3>
@@ -324,18 +324,18 @@ export default function App() {
             </span>
           </div>
           <div className="flex items-center gap-1 text-slate-500 text-sm cursor-pointer hover:text-slate-800">
-             Sorted by vote count
-             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-             </svg>
+            Sorted by vote count
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
           </div>
         </div>
 
         <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
           {leaderboard.length === 0 ? (
-             <div className="col-span-full py-8 text-center text-slate-500">
-                Loading candidates from blockchain...
-             </div>
+            <div className="col-span-full py-8 text-center text-slate-500">
+              Loading candidates from blockchain...
+            </div>
           ) : (
             leaderboard.map((candidate, idx) => (
               <CandidateCard
@@ -361,13 +361,13 @@ export default function App() {
     return (
       <div className="light-card bg-white p-8 max-w-2xl mx-auto mt-8">
         <h2 className="text-2xl font-bold text-slate-800 mb-6 border-b pb-4">My Voter Details</h2>
-        
+
         <div className="space-y-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
-               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-               </svg>
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Web3 Identity</p>
@@ -387,7 +387,7 @@ export default function App() {
             <div>
               <p className="text-sm text-slate-500 mb-1">Connected Wallet</p>
               <p className="font-mono text-brand-600 font-medium bg-brand-50 px-3 py-1.5 rounded border border-brand-100 truncate" title={account || "Not Connected"}>
-                {account ? `${account.slice(0,8)}...${account.slice(-6)}` : "Not Connected"}
+                {account ? `${account.slice(0, 8)}...${account.slice(-6)}` : "Not Connected"}
               </p>
             </div>
             <div className="md:col-span-2">
@@ -424,16 +424,16 @@ export default function App() {
       { id: 4, hash: "0x3A4B...5C6D", status: "Registered" },
       { id: 5, hash: "0x7E8F...9A0B", status: "Registered" },
     ];
-    
+
     if (account) {
-       mockRoll.unshift({ id: 0, hash: `${account.slice(0,6)}...${account.slice(-4)}`, status: "Registered (You)" });
+      mockRoll.unshift({ id: 0, hash: `${account.slice(0, 6)}...${account.slice(-4)}`, status: "Registered (You)" });
     }
 
     return (
       <div className="light-card bg-white p-8 max-w-4xl mx-auto mt-8">
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Public Electoral Roll</h2>
         <p className="text-slate-500 mb-6">Transparent ledger of all registered voting addresses on the blockchain.</p>
-        
+
         <div className="overflow-x-auto rounded-lg border border-slate-200">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -471,7 +471,7 @@ export default function App() {
         </svg>
         Help & Support
       </h2>
-      
+
       <div className="space-y-6">
         <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
           <h3 className="font-bold text-slate-800 text-lg mb-2">How do I vote?</h3>
@@ -479,14 +479,14 @@ export default function App() {
             Ensure you have the MetaMask extension installed. Click the <strong>"Connect Wallet"</strong> button on the top right. Once connected, navigate to the Home dashboard, select your preferred candidate, and click <strong>"Cast Vote"</strong>. You will need to confirm the transaction in your MetaMask wallet.
           </p>
         </div>
-        
+
         <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
           <h3 className="font-bold text-slate-800 text-lg mb-2">Can I vote twice?</h3>
           <p className="text-slate-600 leading-relaxed">
             <strong>No.</strong> The smart contract strictly enforces a one-vote-per-wallet policy. Once your transaction is confirmed on the blockchain, your address is permanently marked as having voted, and any subsequent attempts will be rejected by the network.
           </p>
         </div>
-        
+
         <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
           <h3 className="font-bold text-slate-800 text-lg mb-2">Is my vote secret?</h3>
           <p className="text-slate-600 leading-relaxed">
@@ -500,7 +500,7 @@ export default function App() {
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f7fb]">
       <Navbar account={account} onConnect={handleConnect} isConnecting={isConnecting} />
-      
+
       <div className="flex flex-1 pt-[72px]">
         <Sidebar activeView={activeView} setActiveView={setActiveView} />
 
