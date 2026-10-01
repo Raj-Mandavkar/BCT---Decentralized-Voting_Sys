@@ -42,9 +42,8 @@ export default function Navbar({ account, onConnect, isConnecting }) {
                 </svg>
              </div>
              <div className="hidden sm:block">
-               <p className="text-sm font-semibold text-slate-800 leading-tight">Raj Sharma</p>
-               <p className="text-xs text-slate-500 font-mono">Voter ID: ABC1234567</p>
-               {/* Hidden real account string, visible on hover perhaps, or just omitted for visual match */}
+               <p className="text-sm font-semibold text-slate-800 leading-tight">{shortAddress(account)}</p>
+               <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mt-0.5">Verified Identity</p>
              </div>
              <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
