@@ -69,10 +69,12 @@ async function main() {
 
   console.log("\n📦  ABI  saved to  frontend/src/contracts/Voting.json");
   console.log("📦  Addr saved to  frontend/src/contracts/contractConfig.json");
-  console.log("\n🎉  Phase 1 complete — ready for Phase 2 (testing)!\n");
+  console.log("\n🎉  Deployment complete — ready for interaction!\n");
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
