@@ -4,11 +4,12 @@ export default {
     "./index.html",
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         brand: {
-          50:  "#f0f5ff",
+          50: "#f0f5ff",
           100: "#e5edff",
           200: "#cddbfe",
           300: "#b4c6fc",
@@ -20,14 +21,14 @@ export default {
           900: "#242585",
         },
         surface: {
-          50:  "#ffffff", // Main background
+          50: "#ffffff", // Main background
           100: "#f8fafc", // Slightly off-white for sections
           200: "#f1f5f9",
           300: "#e2e8f0", // Borders
         },
         accent: {
           orange: "#f97316",
-          green:  "#10b981",
+          green: "#10b981",
           yellow: "#eab308",
         },
         // Avatar colors from the design
@@ -39,8 +40,8 @@ export default {
         }
       },
       fontFamily: {
-        sans:  ["Inter", "system-ui", "sans-serif"],
-        mono:  ["JetBrains Mono", "Fira Code", "monospace"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "Fira Code", "monospace"],
       },
       boxShadow: {
         "card": "0 2px 10px rgba(0, 0, 0, 0.05)",

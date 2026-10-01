@@ -6,7 +6,7 @@ artifacts/
 # ── Environment secrets — NEVER commit these ────────────────────────────────
 .env
 .env.local
-
+.env.example
 # ── OS noise ─────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db

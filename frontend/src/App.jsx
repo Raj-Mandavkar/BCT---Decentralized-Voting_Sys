@@ -31,6 +31,25 @@ export default function App() {
   const [isTxPending, setIsTxPending] = useState(false);
   const [toast, setToast] = useState(null);
   const [activeView, setActiveView] = useState('home');
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' ||
+        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   // Ethers state
   const [contract, setContract] = useState(null);
@@ -239,24 +258,24 @@ export default function App() {
   const renderHomeView = () => (
     <>
       {/* ── Hero Banner ───────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-6 relative">
+      <div className="bg-white shadow-sm dark:bg-[#222222] rounded-2xl border border-gray-200 dark:border-[#333333] overflow-hidden mb-6 relative">
         <div className="p-8 pb-10 sm:w-2/3">
-          <p className="font-semibold text-slate-800 text-lg mb-1">Welcome to the</p>
-          <h2 className="font-bold text-4xl sm:text-5xl text-slate-800 leading-tight mb-2">
-            Voter <span className="text-brand-500">Portal</span>
+          <p className="font-semibold text-gray-500 dark:text-neutral-400 text-lg mb-1">Welcome to the</p>
+          <h2 className="font-bold text-4xl sm:text-5xl text-gray-900 dark:text-neutral-100 leading-tight mb-2">
+            Voter <span className="text-indigo-600 dark:text-indigo-400">Portal</span>
           </h2>
-          <div className="flex gap-3 text-brand-600 font-semibold mb-6">
+          <div className="flex gap-3 text-indigo-600 dark:text-indigo-400 font-semibold mb-6">
             <span>Register</span>
             <span>•</span>
             <span>Verify</span>
             <span>•</span>
             <span>Participate</span>
           </div>
-          <p className="text-slate-500 font-medium">A step towards a stronger democracy</p>
+          <p className="text-gray-500 dark:text-neutral-400 font-medium">A step towards a stronger democracy</p>
         </div>
 
         <div className="absolute right-8 top-12 text-right hidden sm:block z-10">
-          <p className="italic font-bold text-slate-800 text-2xl font-serif">“Every vote counts”</p>
+          <p className="italic font-bold text-gray-900 dark:text-neutral-100 text-2xl font-serif">“Every vote counts”</p>
           <div className="flex justify-end mt-2 gap-1">
             <div className="w-4 h-1.5 bg-orange-500 rounded-sm"></div>
             <div className="w-4 h-1.5 bg-yellow-400 rounded-sm"></div>
@@ -265,10 +284,10 @@ export default function App() {
         </div>
 
         <div className="absolute right-0 bottom-0 h-full w-2/3 opacity-30 pointer-events-none"
-          style={{ background: 'radial-gradient(circle at 70% 50%, rgba(93, 95, 239, 0.15) 0%, transparent 60%)' }}>
-          <svg className="absolute right-[20%] bottom-0 h-[120%] text-slate-300" viewBox="0 0 100 100" fill="currentColor">
+          style={{ background: 'radial-gradient(circle at 70% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 60%)' }}>
+          <svg className="absolute right-[20%] bottom-0 h-[120%] text-gray-300 dark:text-[#333333]" viewBox="0 0 100 100" fill="currentColor">
             <path d="M50 80 Q50 60 45 40 Q40 20 45 10 Q50 0 55 10 Q60 20 55 40 Q50 60 50 80 Z" opacity="0.5" />
-            <circle cx="50" cy="20" r="2" fill="#2d2ea3" opacity="0.8" />
+            <circle cx="50" cy="20" r="2" fill="#4f46e5" opacity="0.8" />
           </svg>
         </div>
       </div>
@@ -285,16 +304,16 @@ export default function App() {
 
       {/* ── Connect-wallet prompt ────────────────────────────────────────── */}
       {!account && (
-        <div className="light-card p-6 mb-8 flex flex-col sm:flex-row items-center gap-5 justify-between bg-white border-orange-200">
+        <div className="bg-white shadow-sm dark:bg-[#222222] p-6 mb-8 flex flex-col sm:flex-row items-center gap-5 justify-between border border-orange-200 dark:border-[#333333] rounded-xl">
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500 flex-shrink-0 shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-orange-50 dark:bg-orange-900/30 border border-orange-100 dark:border-orange-500/50 flex items-center justify-center text-orange-500 flex-shrink-0 shadow-sm">
               <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-bold text-slate-800 text-lg">Connect your wallet to vote</h3>
-              <p className="text-slate-500 text-sm mt-0.5">
+              <h3 className="font-bold text-gray-900 dark:text-neutral-100 text-lg">Connect your wallet to vote</h3>
+              <p className="text-gray-500 dark:text-neutral-400 text-sm mt-0.5">
                 You can view results without connecting, but voting requires MetaMask.
               </p>
             </div>
@@ -302,7 +321,7 @@ export default function App() {
           <button
             onClick={handleConnect}
             disabled={isConnecting}
-            className="btn-primary flex-shrink-0 w-full sm:w-auto bg-brand-500 hover:bg-brand-600 shadow-[0_4px_14px_rgba(93,95,239,0.3)] px-6 py-2.5 rounded-lg font-semibold"
+            className="flex-shrink-0 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm px-6 py-2.5 rounded-lg font-semibold dark:bg-indigo-500 dark:hover:bg-indigo-600"
           >
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -318,12 +337,12 @@ export default function App() {
       <section>
         <div className="flex items-center justify-between mb-4 px-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-xl text-slate-800">Candidates</h3>
-            <span className="text-brand-500 font-semibold bg-brand-50 px-2 py-0.5 rounded-md text-sm">
+            <h3 className="font-bold text-xl text-gray-900 dark:text-neutral-100">Candidates</h3>
+            <span className="text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md text-sm">
               ({candidates.length})
             </span>
           </div>
-          <div className="flex items-center gap-1 text-slate-500 text-sm cursor-pointer hover:text-slate-800">
+          <div className="flex items-center gap-1 text-gray-500 dark:text-neutral-400 text-sm cursor-pointer hover:text-gray-900 dark:hover:text-neutral-100">
             Sorted by vote count
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
@@ -331,9 +350,9 @@ export default function App() {
           </div>
         </div>
 
-        <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full">
           {leaderboard.length === 0 ? (
-            <div className="col-span-full py-8 text-center text-slate-500">
+            <div className="col-span-full py-8 text-center text-gray-500 dark:text-neutral-400">
               Loading candidates from blockchain...
             </div>
           ) : (
@@ -359,51 +378,51 @@ export default function App() {
     const formatAddress = (addr) => (addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "");
 
     return (
-      <div className="light-card bg-white p-8 max-w-2xl mx-auto mt-8">
-        <h2 className="text-2xl font-bold text-slate-800 mb-6 border-b pb-4">My Voter Details</h2>
+      <div className="bg-white shadow-sm dark:bg-[#222222] border border-gray-200 dark:border-[#333333] p-8 max-w-2xl mx-auto mt-8 rounded-xl">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-6 border-b border-gray-200 dark:border-[#333333] pb-4">My Voter Details</h2>
 
         <div className="space-y-6">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 flex-shrink-0">
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Web3 Identity</p>
-              <p className="text-xl font-bold text-slate-800">
+              <p className="text-sm font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wide">Web3 Identity</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-neutral-100">
                 {account ? formatAddress(account) : "Anonymous Voter"}
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 dark:bg-neutral-800/30 p-6 rounded-xl border border-gray-200 dark:border-[#333333]">
             <div>
-              <p className="text-sm text-slate-500 mb-1">Voter ID Hash</p>
-              <p className="font-mono text-slate-800 font-medium bg-white px-3 py-1.5 rounded border border-slate-200 inline-block">
+              <p className="text-sm text-gray-500 dark:text-neutral-400 mb-1">Voter ID Hash</p>
+              <p className="font-mono text-gray-900 dark:text-neutral-100 font-medium bg-white dark:bg-[#161616] px-3 py-1.5 rounded border border-gray-200 dark:border-[#333333] inline-block">
                 {generateVoterHash(account)}
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-500 mb-1">Connected Wallet</p>
-              <p className="font-mono text-brand-600 font-medium bg-brand-50 px-3 py-1.5 rounded border border-brand-100 truncate" title={account || "Not Connected"}>
+              <p className="text-sm text-gray-500 dark:text-neutral-400 mb-1">Connected Wallet</p>
+              <p className="font-mono text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded border border-indigo-200 dark:border-indigo-500/50 truncate" title={account || "Not Connected"}>
                 {account ? `${account.slice(0, 8)}...${account.slice(-6)}` : "Not Connected"}
               </p>
             </div>
             <div className="md:col-span-2">
-              <p className="text-sm text-slate-500 mb-2">Voting Status</p>
+              <p className="text-sm text-gray-500 dark:text-neutral-400 mb-2">Voting Status</p>
               {hasVoted ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 font-semibold text-sm border border-green-200">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-semibold text-sm border border-green-200 dark:border-green-800">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                   Vote Successfully Cast
                 </span>
               ) : account ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm border border-blue-200">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-semibold text-sm border border-blue-200 dark:border-blue-800">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
                   Eligible to Vote
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-700 font-semibold text-sm border border-orange-200">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 font-semibold text-sm border border-orange-200 dark:border-orange-800">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                   Connection Required
                 </span>
@@ -430,26 +449,26 @@ export default function App() {
     }
 
     return (
-      <div className="light-card bg-white p-8 max-w-4xl mx-auto mt-8">
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Public Electoral Roll</h2>
-        <p className="text-slate-500 mb-6">Transparent ledger of all registered voting addresses on the blockchain.</p>
+      <div className="bg-white shadow-sm dark:bg-[#222222] border border-gray-200 dark:border-[#333333] p-8 max-w-4xl mx-auto mt-8 rounded-xl">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-2">Public Electoral Roll</h2>
+        <p className="text-gray-500 dark:text-neutral-400 mb-6">Transparent ledger of all registered voting addresses on the blockchain.</p>
 
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-[#333333]">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm font-semibold uppercase tracking-wide">
+              <tr className="bg-gray-50 dark:bg-neutral-800/30 border-b border-gray-200 dark:border-[#333333] text-gray-500 dark:text-neutral-400 text-sm font-semibold uppercase tracking-wide">
                 <th className="px-6 py-4">#</th>
                 <th className="px-6 py-4">Voter Wallet Hash</th>
                 <th className="px-6 py-4">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-[#333333]">
               {mockRoll.map((row, i) => (
-                <tr key={row.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-slate-500">{i + 1}</td>
-                  <td className="px-6 py-4 font-mono text-slate-800">{row.hash}</td>
+                <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-neutral-800/20 transition-colors">
+                  <td className="px-6 py-4 text-gray-500 dark:text-neutral-400">{i + 1}</td>
+                  <td className="px-6 py-4 font-mono text-gray-900 dark:text-neutral-100">{row.hash}</td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-semibold border border-green-200">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold border border-green-200 dark:border-green-800">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                       {row.status}
                     </span>
@@ -464,32 +483,32 @@ export default function App() {
   };
 
   const renderHelpSupport = () => (
-    <div className="light-card bg-white p-8 max-w-3xl mx-auto mt-8">
-      <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-        <svg className="w-7 h-7 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="bg-white shadow-sm dark:bg-[#222222] border border-gray-200 dark:border-[#333333] p-8 max-w-3xl mx-auto mt-8 rounded-xl">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100 mb-6 flex items-center gap-2">
+        <svg className="w-7 h-7 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         Help & Support
       </h2>
 
       <div className="space-y-6">
-        <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
-          <h3 className="font-bold text-slate-800 text-lg mb-2">How do I vote?</h3>
-          <p className="text-slate-600 leading-relaxed">
-            Ensure you have the MetaMask extension installed. Click the <strong>"Connect Wallet"</strong> button on the top right. Once connected, navigate to the Home dashboard, select your preferred candidate, and click <strong>"Cast Vote"</strong>. You will need to confirm the transaction in your MetaMask wallet.
+        <div className="bg-gray-50 dark:bg-neutral-800/30 p-5 rounded-xl border border-gray-200 dark:border-[#333333]">
+          <h3 className="font-bold text-gray-900 dark:text-neutral-100 text-lg mb-2">How do I vote?</h3>
+          <p className="text-gray-600 dark:text-neutral-400 leading-relaxed">
+            Ensure you have the MetaMask extension installed. Click the <strong className="dark:text-neutral-200">"Connect Wallet"</strong> button on the top right. Once connected, navigate to the Home dashboard, select your preferred candidate, and click <strong className="dark:text-neutral-200">"Cast Vote"</strong>. You will need to confirm the transaction in your MetaMask wallet.
           </p>
         </div>
 
-        <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
-          <h3 className="font-bold text-slate-800 text-lg mb-2">Can I vote twice?</h3>
-          <p className="text-slate-600 leading-relaxed">
-            <strong>No.</strong> The smart contract strictly enforces a one-vote-per-wallet policy. Once your transaction is confirmed on the blockchain, your address is permanently marked as having voted, and any subsequent attempts will be rejected by the network.
+        <div className="bg-gray-50 dark:bg-neutral-800/30 p-5 rounded-xl border border-gray-200 dark:border-[#333333]">
+          <h3 className="font-bold text-gray-900 dark:text-neutral-100 text-lg mb-2">Can I vote twice?</h3>
+          <p className="text-gray-600 dark:text-neutral-400 leading-relaxed">
+            <strong className="dark:text-neutral-200">No.</strong> The smart contract strictly enforces a one-vote-per-wallet policy. Once your transaction is confirmed on the blockchain, your address is permanently marked as having voted, and any subsequent attempts will be rejected by the network.
           </p>
         </div>
 
-        <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
-          <h3 className="font-bold text-slate-800 text-lg mb-2">Is my vote secret?</h3>
-          <p className="text-slate-600 leading-relaxed">
+        <div className="bg-gray-50 dark:bg-neutral-800/30 p-5 rounded-xl border border-gray-200 dark:border-[#333333]">
+          <h3 className="font-bold text-gray-900 dark:text-neutral-100 text-lg mb-2">Is my vote secret?</h3>
+          <p className="text-gray-600 dark:text-neutral-400 leading-relaxed">
             Your vote is tied to your public wallet address on the blockchain. While your real-world identity is not explicitly linked unless you expose it, the ledger is entirely transparent and immutable, ensuring anyone can verify the integrity of the election results.
           </p>
         </div>
@@ -498,13 +517,13 @@ export default function App() {
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f4f7fb]">
-      <Navbar account={account} onConnect={handleConnect} isConnecting={isConnecting} />
+    <div className="min-h-screen w-full flex bg-gray-50 dark:bg-[#161616] text-gray-900 dark:text-neutral-100 transition-colors duration-200">
+      <Sidebar activeView={activeView} setActiveView={setActiveView} />
 
-      <div className="flex flex-1 pt-[72px]">
-        <Sidebar activeView={activeView} setActiveView={setActiveView} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Navbar account={account} onConnect={handleConnect} isConnecting={isConnecting} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
 
-        <main className="flex-1 max-w-6xl mx-auto w-full p-6 lg:p-8">
+        <main className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">
           {activeView === 'home' && renderHomeView()}
           {activeView === 'voter-details' && renderVoterDetails()}
           {activeView === 'electoral-roll' && renderElectoralRoll()}

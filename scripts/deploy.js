@@ -11,7 +11,7 @@
 
 const { ethers, artifacts, network } = require("hardhat");
 const path = require("path");
-const fs   = require("fs");
+const fs = require("fs");
 
 async function main() {
   // ── 1. Log deployer info ─────────────────────────────────────────────────
@@ -26,15 +26,15 @@ async function main() {
   // These names will be registered inside the constructor.
   // Edit this array freely before deploying.
   const initialCandidates = [
-    "Alice Johnson",
-    "Bob Martinez",
-    "Carol Williams",
-    "David Lee",
+    "Raj",
+    "Anmol",
+    "Darshan",
+    "Aditya",
   ];
 
   // ── 3. Deploy ────────────────────────────────────────────────────────────
   const VotingFactory = await ethers.getContractFactory("Voting");
-  const voting        = await VotingFactory.deploy(initialCandidates);
+  const voting = await VotingFactory.deploy(initialCandidates);
 
   await voting.waitForDeployment();           // ethers v6 API
 
@@ -57,10 +57,10 @@ async function main() {
   // Write a tiny config file with just the address (and network chain ID)
   const { chainId } = await ethers.provider.getNetwork();
   const contractConfig = {
-    address    : contractAddress,
-    chainId    : chainId.toString(),
-    network    : network.name,
-    deployedAt : new Date().toISOString(),
+    address: contractAddress,
+    chainId: chainId.toString(),
+    network: network.name,
+    deployedAt: new Date().toISOString(),
   };
   fs.writeFileSync(
     path.join(frontendDir, "contractConfig.json"),
