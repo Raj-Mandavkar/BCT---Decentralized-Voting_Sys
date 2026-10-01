@@ -1,0 +1,16 @@
+# ── Hardhat / Node ──────────────────────────────────────────────────────────
+node_modules/
+cache/
+artifacts/
+
+# ── Environment secrets — NEVER commit these ────────────────────────────────
+.env
+.env.local
+
+# ── OS noise ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Frontend build output ────────────────────────────────────────────────────
+frontend/dist/
+frontend/node_modules/
